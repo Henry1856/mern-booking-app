@@ -6,13 +6,27 @@ import ConnectDB from './config/db';
 import userRoutes from "./routes/users"
 import authRoutes from "./routes/auth"
 import cookieParser from "cookie-parser";
+import {v2 as cloudinary}from "cloudinary"
+import fileupload from "express-fileupload"
+import myHotelsRoutes from "./routes/my-hotels"
+
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+app.use(fileupload({
+    useTempFiles: true,
+    tempFileDir: '/tmp/',
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB max
+}));
 
 ConnectDB();
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret:process.env.CLOUDINARY_API_SECRET
+});
 
 app.use(cookieParser());
 app.use(express.json());
@@ -24,6 +38,7 @@ app.use(cors({
 app.use(express.static(path.join(__dirname, "../../frontend/dist")));
 app.use("/api/users", userRoutes)
 app.use("/api/auth",authRoutes)
+app.use("/api/my-hotels", myHotelsRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.json({ message: "Welcome to mern-booking-app!" });
@@ -33,6 +48,8 @@ console.log('Starting server...');
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+
+
 
 
 
