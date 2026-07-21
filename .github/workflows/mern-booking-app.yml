@@ -36,8 +36,7 @@ jobs:
 
       - name: Build
         run: npm run build
-        env:
-          NODE_ENV: production
+        
 
   deploy:
     name: Deploy to Render
