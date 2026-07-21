@@ -1,62 +1,53 @@
 name: mern-booking-hotel CI/CD
 
-# Triggers — when to run this workflow
 on:
   push:
     branches:
-      - main          # runs when you push to main
-      - develop       # runs when you push to develop
+      - main
+      - develop
   pull_request:
     branches:
-      - main          # runs when you open a PR to main
+      - main
       - develop
 
 jobs:
-  # ── JOB 1: CI — Build and Type Check ──────────────────────────────────────
   build:
     name: Build & Type Check
-    runs-on: ubuntu-latest  # runs on GitHub's Ubuntu server
-
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     steps:
-      # Step 1 — Checkout your code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2 — Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'        # Node version
-          cache: 'npm'              # cache node_modules for faster runs
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
 
-      # Step 3 — Install dependencies
       - name: Install dependencies
-        run: npm ci                 # ci is faster and more reliable than npm install
+        run: npm ci
 
-      # Step 4 — Check TypeScript compiles without errors
       - name: TypeScript type check
-        run: npx tsc --noEmit      # checks types without generating files
+        run: npx tsc --noEmit
 
-      # Step 5 — Build the project
       - name: Build
-        run: npm run build          # compiles TypeScript to JavaScript
+        run: npm run build
         env:
           NODE_ENV: production
 
-  # ── JOB 2: CD — Deploy to Render ──────────────────────────────────────────
-  # Only runs after build job succeeds AND only on push to main
   deploy:
     name: Deploy to Render
     runs-on: ubuntu-latest
-    needs: build                   # waits for build job to pass first
+    needs: build
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-
     steps:
-      # Step 1 — Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2 — Deploy to Render using deploy hook
       - name: Deploy to Render
         env:
           RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
