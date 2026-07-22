@@ -39,7 +39,11 @@ app.use(express.static(path.join(__dirname, "../../frontend/dist")));
 app.use("/api/users", userRoutes)
 app.use("/api/auth",authRoutes)
 app.use("/api/my-hotel", myHotelsRoutes);
-app.get("*",(req:Request, res:Response)=>{
+app.get("/", (req: Request, res: Response) => {
+  res.json({ message: "Welcome to mern-booking-app!" });
+});
+
+app.get("/{*splat}",(req:Request, res:Response)=>{
   res.sendFile(path.join(__dirname,"../../frontend/dist/index.html"))
 })
 
