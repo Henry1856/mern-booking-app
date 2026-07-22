@@ -16,7 +16,7 @@ router.post("/", verifyToken, [
     body("childCount").isInt({ min: 0 }).withMessage("Child count must be at least 0"),
     body("facilities").notEmpty().isArray().withMessage("Facilities must be an array"),
     body("pricePerNight").isFloat({ min: 0 }).withMessage("Price per night is required and must be a positive number"),
-    body("starrating").isInt({ min: 1, max: 5 }).withMessage("Star rating must be between 1 and 5"),
+    body("starRating").isInt({ min: 1, max: 5 }).withMessage("Star rating must be between 1 and 5"),
     body("imageUrls").isArray().withMessage("Image URLs must be an array")
 ],
 // fileUpload({ useTempFiles: true }, 6),
