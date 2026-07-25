@@ -1,4 +1,5 @@
 import type { SignInFormData } from "./pages/SignIn";
+import type {HotelTypes} from "../../backend/src/shared/types";
 
 export type RegisterFormData = {
     firstName: string;
@@ -66,7 +67,7 @@ export const signOut = async ()=>{
 
 
 export const addMyHotel = async (hotelFormData:FormData)=>{
-    const response = await fetch(`${API_BASE_URL}/api/my-hotel`,{
+    const response = await fetch(`${API_BASE_URL}/api/my-hotels`,{
         method:"POST",
         credentials:"include",
         body:hotelFormData,
@@ -76,4 +77,14 @@ export const addMyHotel = async (hotelFormData:FormData)=>{
     }
     return response.json();
 };
+
+export const fetchMyHotels = async (): Promise<HotelTypes[]>=>{
+    const response = await fetch(`${API_BASE_URL}/api/my-hotels`,{
+        credentials:"include"
+    });
+    if(!response.ok){
+        throw new Error ("Error fetching hotels")
+    }
+    return response.json();
+}
             

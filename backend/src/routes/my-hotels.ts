@@ -1,9 +1,10 @@
 import express, { Request, Response } from "express";
 import fileUpload, { UploadedFile } from "express-fileupload";
 import { v2 as cloudinary } from "cloudinary";
-import Hotel, { HotelTypes } from "../models/hotel";
 import verifyToken from "../middleware/auth";
 import { body } from "express-validator/lib/middlewares/validation-chain-builders";
+import { HotelTypes } from "../shared/types";
+import Hotel from "../models/hotel";
 const router = express.Router();
 
 router.post("/", verifyToken, [
@@ -21,6 +22,8 @@ router.post("/", verifyToken, [
 ],
 // fileUpload({ useTempFiles: true }, 6),
  async (req: Request, res: Response) => {
+           console.log("POST /my-hotel hit");
+
     try {
         const imageFiles = req.files?.imageFiles;
         if (!imageFiles) {
@@ -66,5 +69,19 @@ router.post("/", verifyToken, [
         res.status(500).json({ message: "Internal server error" });
     }
 });
+
+
+router.get("/", verifyToken, async(req:Request, res:Response)=>{
+       console.log("GET /my-hotel hit");
+
+   try{
+     const hotels = await Hotel.find({userId:req.userId})
+      res.json(hotels);
+   }
+   catch(error){
+    res.status(500).json({message:"Error fetching hotels"})
+   }
+
+})
 
 export default router;

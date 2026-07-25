@@ -38,7 +38,7 @@ app.use(cors({
 app.use(express.static(path.join(__dirname, "../../frontend/dist")));
 app.use("/api/users", userRoutes)
 app.use("/api/auth",authRoutes)
-app.use("/api/my-hotel", myHotelsRoutes);
+app.use("/api/my-hotels", myHotelsRoutes);
 app.get("/", (req: Request, res: Response) => {
   res.json({ message: "Welcome to mern-booking-app!" });
 });
