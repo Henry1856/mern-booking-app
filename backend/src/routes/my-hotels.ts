@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import fileUpload, { UploadedFile } from "express-fileupload";
-import { v2 as cloudinary } from "cloudinary";
+import { v2 as cloudinary, UploadStream } from "cloudinary";
 import verifyToken from "../middleware/auth";
 import { body } from "express-validator/lib/middlewares/validation-chain-builders";
 import { HotelTypes } from "../shared/types";
@@ -83,5 +83,68 @@ router.get("/", verifyToken, async(req:Request, res:Response)=>{
    }
 
 })
+
+router.get("/:id", verifyToken, async(req:Request, res:Response)=>{
+    const id = req.params.id.toString();
+    try{
+        const hotel = await Hotel.findOne({
+            _id: id,
+            userId:req.userId
+        });
+        res.json(hotel);
+    }catch(error){
+        res.status(500).json({message:"error fetching hotel"})
+    }
+});
+
+router.put("/:hotelId", verifyToken, async (req: Request, res: Response) => {
+    try {
+        const updatedHotel: HotelTypes = req.body;
+        updatedHotel.lastUpdated = new Date();
+
+        const hotel = await Hotel.findOneAndUpdate(
+            { _id: req.params.hotelId, userId: req.userId },
+            updatedHotel,
+            { new: true }
+        );
+
+        if (!hotel) {
+            return res.status(404).json({ message: "Hotel not found" });
+        }
+
+        const files = req.files?.imageFiles;
+        if (files) {
+            const images = Array.isArray(files) ? files : [files];
+
+            const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
+            for (const image of images as UploadedFile[]) {
+                if (!allowedTypes.includes(image.mimetype)) {
+                    return res.status(400).json({
+                        message: `Invalid image file type: ${image.name}`,
+                    });
+                }
+            }
+
+            const uploadPromises = (images as UploadedFile[]).map((image) =>
+                cloudinary.uploader.upload(image.tempFilePath, {
+                    folder: "hotels-images",
+                    invalidate: true,
+                    overwrite: true,
+                })
+            );
+
+            const uploadResults = await Promise.all(uploadPromises);
+            const newImageUrls = uploadResults.map((result) => result.secure_url);
+
+            hotel.imageUrls = [...newImageUrls, ...(updatedHotel.imageUrls || [])];
+            await hotel.save();
+        }
+
+        res.status(200).json(hotel);
+    } catch (error) {
+        console.log("Error updating hotel:", error);
+        res.status(500).json({ message: "Something went wrong" });
+    }
+});
 
 export default router;

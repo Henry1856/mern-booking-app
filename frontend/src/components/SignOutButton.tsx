@@ -1,10 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as apiClient from "../api-client";
 import { useAppContext } from "../contexts/AppContext";
+import { useNavigate } from "react-router-dom";
 
 const SignOutButton =() =>{
     const queryClient = useQueryClient();
     const {showToast} = useAppContext();
+    const navigate = useNavigate();
 
     const mutation = useMutation({
         mutationFn: apiClient.signOut,
@@ -15,6 +17,7 @@ const SignOutButton =() =>{
         onError:(error:Error)=>{
             console.error("Error during sign out:", error);
             showToast({ type: "ERROR", message: error.message });
+            navigate("/sign-in")
         },
     });
 
