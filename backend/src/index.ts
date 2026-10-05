@@ -10,6 +10,7 @@ import {v2 as cloudinary}from "cloudinary"
 import fileupload from "express-fileupload"
 import myHotelsRoutes from "./routes/my-hotels"
 import hotelRoutes from "./routes/hotels";
+import bookingRouters from "./routes/my-bookings";
 
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
@@ -19,7 +20,7 @@ const PORT = process.env.PORT || 5000;
 app.use(fileupload({
     useTempFiles: true,
     tempFileDir: '/tmp/',
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB max
+    limits: { fileSize: 10 * 1024 * 1024 },
 }));
 
 ConnectDB();
@@ -41,6 +42,7 @@ app.use("/api/users", userRoutes)
 app.use("/api/auth",authRoutes)
 app.use("/api/my-hotels", myHotelsRoutes);
 app.use("/api/hotels", hotelRoutes);
+app.use("/api/my-bookings", bookingRouters)
 app.get("/", (req: Request, res: Response) => {
   res.json({ message: "Welcome to mern-booking-app!" });
 });
