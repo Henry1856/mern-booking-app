@@ -51,6 +51,18 @@ router.get("/search",async(req:Request,res:Response)=>{
 });
 
 
+
+router.get("/", async(req:Request, res:Response)=>{
+    try{
+        const hotels = await Hotel.find().sort("-lastUpdated")
+        res.json(hotels)
+    }catch(error){
+        console.log("error",error)
+        res.status(500).json({message:"Error fetching hotel"})
+    }
+})
+
+
 //get hotel by id
 
 
@@ -71,47 +83,7 @@ router.get("/:id",[
     }
   }
 );
-// const PAYSTACK_URL = "https://api.paystack.co";
-// const secretKey = process.env.PAYSTACK_SECRET?.trim();
 
-// router.post("/:hotelId/bookings/initialize-payment", verifyToken,async(req:Request, res:Response)=>{
-//     const {numberOfNights} = req.body;
-//     const hotelId = req.params.hotelId;
-//     const hotel = await Hotel.findById(hotelId)
-//     if(!hotel) {
-//         return res.status(400).json({message:"hotel not found"});
-//     }
-
-//     const totalCost = hotel.pricePerNight * numberOfNights;        
-//     try{ 
-//         const { data } = await axios({
-//         method: "post",
-//         url: `${PAYSTACK_URL}/transaction/initialize`,
-//         data: {
-//         amount: totalCost,
-//         reference: `order_${hotelId}_${Date.now()}`,
-//         metadata: { hotelId, userId:req.userId },
-//       },
-//         headers: {
-//         Authorization: `Bearer ${secretKey}`,
-//         "Content-Type": "application/json",
-//         "Cache-Control": "no-cache",
-//       },
-//     });
-
-//     return {
-//       paymentUrl: data.authorization_url,
-//       reference: data.reference,
-//       accessCode: data.access_code,
-//     };
-
-//     }
-//     catch{ throw Object.assign(
-//             new Error("payment initialization failed, please try again"), {status:500}
-//      );
-//     }
-
-// })
 
 
 const PAYSTACK_URL = "https://api.paystack.co";
